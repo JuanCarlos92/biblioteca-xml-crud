@@ -36,27 +36,28 @@ public class BibliotecaRepository {
         }
     }
 
-    // Crear un libro (insertar XML en BaseX)
+    // Crear libro
     public void crearLibro(Libro libro) throws RepositoryException {
         try {
-            // Convierte el objeto libro a un string XML
-            String xmlContent = libro.toXml();
+            String query = "INSERT INTO BIBLIOTECA "
+                    + "<libro>"
+                    + "<titulo>" + libro.getTitulo() + "</titulo>"
+                    + "<autor>" + libro.getAutor() + "</autor>"
+                    + "<anio>" + libro.getAnio() + "</anio>"
+                    + "<genero>" + libro.getGenero() + "</genero>"
+                    + "</libro>";
 
-            // Ejecuta el comando de BaseX para agregar el XML
-            session.execute("add " + COLLECTION_NAME + "/libro" + libro.getId() + ".xml " + xmlContent);
-            System.out.println("Libro agregado: " + libro.getTitulo());
 
-        } catch (IOException e) {
-            throw new RepositoryException("Error al procesar el libro XML", e);
+            session.execute(query);
         } catch (Exception e) {
-            throw new RepositoryException("Error inesperado al agregar el libro", e);
+            throw new RepositoryException("Error al insertar el libro en la base de datos", e);
         }
     }
 
-    // Consultar todos los libros
+    // Mostrar libros
     public List<Libro> consultarLibros() throws RepositoryException {
-        // Lista que almacenará los libros
-        List<Libro> libros = new ArrayList<>();
+        // Lista que almacenar libros
+        List<Libro> libros;
 
         try {
             // Ejecuta una consulta XQUERY que obtiene todos los nodos de la colección
@@ -66,6 +67,16 @@ public class BibliotecaRepository {
             // Procesar el XML resultante y lo convierte en una lista de objetos Libro
             libros = parsearLibrosXML(result);
 
+            // Mostrar cada libro
+            for (Libro libro : libros) {
+                System.out.println("ID: " + libro.getId());
+                System.out.println("Título: " + libro.getTitulo());
+                System.out.println("Autor: " + libro.getAutor());
+                System.out.println("Año: " + libro.getAnio());
+                System.out.println("Género: " + libro.getGenero());
+                System.out.println("---------------------------------");
+            }
+
         } catch (IOException e) {
             throw new RepositoryException("Error al procesar la consulta de libros", e);
         } catch (Exception e) {
@@ -74,7 +85,7 @@ public class BibliotecaRepository {
         return libros;
     }
 
-    // Metodo para convertir XML a una lista de objetos Libro
+    // Convertir XML a lista de objetos Libro
     private List<Libro> parsearLibrosXML(String xml) throws RepositoryException {
         // Lista donde se almacenarán los objetos Libro convertidos desde el XML
         List<Libro> libros = new ArrayList<>();
@@ -95,16 +106,15 @@ public class BibliotecaRepository {
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element element = (Element) node;
 
-                    // Extrae los atributos y valores de las etiquetas del XML
-                    int id = Integer.parseInt(element.getAttribute("id"));
+                    // Extrae los valores de las etiquetas del XML
+                    int id = Integer.parseInt(getTagValue("id", element));
                     String titulo = getTagValue("titulo", element);
                     String autor = getTagValue("autor", element);
                     int anio = Integer.parseInt(getTagValue("anio", element));
                     String genero = getTagValue("genero", element);
-                    double precio = Double.parseDouble(getTagValue("precio", element));
 
                     // Crea un objeto Libro y lo agrega a la lista
-                    libros.add(new Libro(id, titulo, autor, anio, genero, precio));
+                    libros.add(new Libro(id, titulo, autor, anio, genero));
                 }
             }
         } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -113,46 +123,12 @@ public class BibliotecaRepository {
         return libros;
     }
 
-    // Metodo para obtener el valor de una etiqueta en un elemento XML
+    // Función para obtener el valor de una etiqueta por nombre
     private String getTagValue(String tag, Element element) {
-
-        // Obtiene todos los nodos con el nombre de la etiqueta
         NodeList nodeList = element.getElementsByTagName(tag);
-
-        // Si existen nodos con esa etiqueta, devuelve el texto contenido en la primera coincidencia
         if (nodeList.getLength() > 0) {
             return nodeList.item(0).getTextContent();
         }
-        //Si no se encuentra la etiqueta, devuelve una cadena vacía
-        return "";
-    }
-
-    // Metodo para eliminar un libro de la base de datos usando su id
-    public void eliminarLibro(int id) throws RepositoryException {
-        try {
-            // Ejecuta un comando para eliminar el nodo XML correspondiente al libro con el ID dado
-            session.execute("delete node collection('" + COLLECTION_NAME + "')" + "/libro" + id + ".xml");
-
-            System.out.println("Libro eliminado con id: " + id);
-
-        } catch (Exception e) {
-            throw new RepositoryException("Error al eliminar el libro con id: " + id, e);
-        }
-    }
-
-    // Actualizar un libro (reemplazar XML existente)
-    public void actualizarLibro(Libro libro) throws RepositoryException {
-        try {
-            // Convierte el objeto libro a un string XML
-            String xmlContent = libro.toXml();
-
-            // Ejecuta el comando para reemplazar el archivo XML existente en la base de datos
-            session.execute("replace node collection('" + COLLECTION_NAME + "')" + "/libro" + libro.getId() + ".xml " + xmlContent);
-
-            System.out.println("Libro actualizado: " + libro.getTitulo());
-
-        } catch (Exception e) {
-            throw new RepositoryException("Error al actualizar el libro", e);
-        }
+        return null;
     }
 }

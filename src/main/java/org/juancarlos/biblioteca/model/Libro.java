@@ -6,16 +6,14 @@ public class Libro {
     private String autor;
     private int anio;
     private String genero;
-    private double precio;
 
     // Constructor
-    public Libro(int id, String titulo, String autor, int anio, String genero, double precio) {
+    public Libro(int id, String titulo, String autor, int anio, String genero) {
         this.id = id;
         this.titulo = titulo;
         this.autor = autor;
         this.anio = anio;
         this.genero = genero;
-        this.precio = precio;
     }
 
     // Getters y Setters
@@ -59,14 +57,6 @@ public class Libro {
         this.genero = genero;
     }
 
-    public double getPrecio() {
-        return precio;
-    }
-
-    public void setPrecio(double precio) {
-        this.precio = precio;
-    }
-
     // Convertir el objeto a un formato XML
     public String toXml() {
         return "<libro id=\"" + id + "\">" +
@@ -74,7 +64,6 @@ public class Libro {
                 "<autor>" + autor + "</autor>" +
                 "<anio>" + anio + "</anio>" +
                 "<genero>" + genero + "</genero>" +
-                "<precio>" + precio + "</precio>" +
                 "</libro>";
     }
 }
