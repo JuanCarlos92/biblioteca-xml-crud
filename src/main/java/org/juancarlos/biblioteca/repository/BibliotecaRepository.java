@@ -1,6 +1,7 @@
 package org.juancarlos.biblioteca.repository;
 
 import org.basex.api.client.ClientSession;
+import org.juancarlos.biblioteca.conexion.BaseXConnection;
 import org.juancarlos.biblioteca.exception.RepositoryException;
 import org.juancarlos.biblioteca.model.Libro;
 
@@ -25,10 +26,13 @@ public class BibliotecaRepository {
     // Constructor
     public BibliotecaRepository() throws RepositoryException {
         try {
-            session = new ClientSession("localhost", 1984, "Usuariobiblioteca", "Usuariobiblioteca");
+            // Obtener la sesión de BaseX desde la clase BaseXConnection
+            this.session = BaseXConnection.obtenerConexion();
 
+            // Abrir la colección
+            session.execute("OPEN " + COLLECTION_NAME);
         } catch (Exception e) {
-            throw new RepositoryException("Error al conectar con la base de datos", e);
+            throw new RepositoryException("Error al conectar con la base de datos " + COLLECTION_NAME, e);
         }
     }
 

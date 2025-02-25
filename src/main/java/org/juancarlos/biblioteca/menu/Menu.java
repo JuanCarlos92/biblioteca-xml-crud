@@ -4,12 +4,14 @@ import org.juancarlos.biblioteca.controller.BibliotecaController;
 import org.juancarlos.biblioteca.exception.RepositoryException;
 import org.juancarlos.biblioteca.repository.BibliotecaRepository;
 
+
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Menu {
 
     // Inicia la ejecución del menú principal
-    public void iniciar() throws RepositoryException {
+    public void iniciar() throws RepositoryException, IOException {
         Scanner sc = new Scanner(System.in);
         BibliotecaRepository repository = new BibliotecaRepository();
         BibliotecaController bibliotecaController = new BibliotecaController(sc, repository);
@@ -39,6 +41,7 @@ public class Menu {
                     actualizarLibro(sc, bibliotecaController);
                     break;
                 case SALIR:
+                    //BaseXServer.detenerBaseXServer();
                     salir = true;
                     break;
             }
@@ -59,10 +62,11 @@ public class Menu {
             System.out.println("Ingrese un número válido:");
             sc.next();
         }
-        return sc.nextInt();
+        int valor = sc.nextInt();
+        sc.nextLine(); // Limpiar el buffer
+        return valor;
     }
 
-    // Crear un nuevo libro
     private void crearLibro(Scanner sc, BibliotecaController bibliotecaController) {
         System.out.println("Crear un nuevo libro");
 
@@ -80,10 +84,11 @@ public class Menu {
 
         System.out.print("Introduce el precio del libro: ");
         double precio = sc.nextDouble();
-        sc.nextLine(); // Limpiar el buffer
+        sc.nextLine(); // Limpiar el buffer después de nextDouble()
 
         bibliotecaController.crearLibro(titulo, autor, anio, genero, precio);
     }
+
 
     // Consultar todos los libros
     private void consultarLibros(BibliotecaController bibliotecaController) {
