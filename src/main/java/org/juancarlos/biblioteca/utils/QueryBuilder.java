@@ -47,14 +47,10 @@ public class QueryBuilder {
         return "XQUERY for $v in collection('biblioteca')//libro where $v/genero = '" + genero + "' return $v";
     }
     public static String getQueryByAnioMayor(int anio) {
-        return "for $v in collection('biblioteca')//libro " +
-                "where $v/anio > " + anio + " " +
-                "return $v";
+        return "XQUERY for $v in collection('biblioteca')//libro where $v/anio > " + anio  + " return $v";
     }
 
     public static String getQueryByAnioMenor(int anio) {
-        return "for $v in collection('biblioteca')//libro " +
-                "where $v/anio < " + anio + " " +
-                "return $v";
+        return "XQUERY for $v in collection('biblioteca')//libro where $v/anio < " + anio  + " return $v";
     }
 }
