@@ -17,15 +17,28 @@ public class BibliotecaController {
         this.service = new BibliotecaService(repository);
         this.sc = sc;
     }
-
     // Crear libro
     public void crearLibro() {
         service.crearLibro(sc);
     }
-
     // Consultar libros
     public void consultarLibros() {
         service.consultarLibros();
     }
-
+    // Consultar libros titulo
+    public void consultarLibrosTitulo() {
+        service.consultarLibrosTitulo(sc);
+    }
+    // Consultar libros Autor
+    public void consultarLibrosAutor() {
+        service.consultarLibrosAutor(sc);
+    }
+    // Consultar libros Genero
+    public void consultarLibrosGenero() {
+        service.consultarLibrosGenero(sc);
+    }
+    //filtrar libros por anio
+    public void filtrarLibrosAnio() {
+        service.filtrarLibrosAnio(sc);
+    }
 }

@@ -26,7 +26,6 @@ public class Menu {
                 System.out.println("Opción no válida.");
                 continue;
             }
-
             switch (opcionPrincipal) {
                 case CREAR_LIBRO:
                     bibliotecaController.crearLibro();
@@ -34,11 +33,17 @@ public class Menu {
                 case CONSULTAR_LIBROS:
                     bibliotecaController.consultarLibros();
                     break;
-                case ELIMINAR_LIBRO:
-
+                case CONSULTAR_LIBROS_TITULO:
+                    bibliotecaController.consultarLibrosTitulo();
                     break;
-                case ACTUALIZAR_LIBRO:
-
+                case CONSULTAR_LIBROS_AUTOR:
+                    bibliotecaController.consultarLibrosAutor();
+                    break;
+                case CONSULTAR_LIBROS_GENERO:
+                    bibliotecaController.consultarLibrosGenero();
+                    break;
+                case FILTRAR_LIBROS_ANIO:
+                    bibliotecaController.filtrarLibrosAnio();
                     break;
                 case SALIR:
                     salir = true;
@@ -50,7 +55,7 @@ public class Menu {
 
     // Solicita al usuario que seleccione una opción del menú principal
     private EnumMenu validarOpcionPrincipal(Scanner sc) {
-        System.out.print("Selecciona una opción: ");
+        System.out.print("📝 Selecciona una opción: ");
         int codigo = leerEntero(sc);
         return EnumMenu.obtenerPorCodigo(codigo);
     }
@@ -58,7 +63,7 @@ public class Menu {
     // Lee un valor entero introducido por el usuario mediante Scanner.
     private int leerEntero(Scanner sc) {
         while (!sc.hasNextInt()) {
-            System.out.println("Ingrese un número válido:");
+            System.out.println("⚠️ Ingrese un número válido:");
             sc.next();
         }
         int valor = sc.nextInt();

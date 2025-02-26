@@ -9,6 +9,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.juancarlos.biblioteca.utils.QueryBuilder;
+import org.juancarlos.biblioteca.utils.XMLParser;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -21,16 +23,15 @@ import java.util.List;
 public class BibliotecaRepository {
 
     private static final String COLLECTION_NAME = "biblioteca";
-    private ClientSession session;
+    private final ClientSession SESSION;
 
     // Constructor
     public BibliotecaRepository() throws RepositoryException {
         try {
             // Obtener la sesión de BaseX desde la clase BaseXConnection
-            this.session = BaseXConnection.obtenerConexion();
-
+            this.SESSION = BaseXConnection.obtenerConexion();
             // Abrir la colección
-            session.execute("OPEN " + COLLECTION_NAME);
+            SESSION.execute("OPEN " + COLLECTION_NAME);
         } catch (Exception e) {
             throw new RepositoryException("Error al conectar con la base de datos " + COLLECTION_NAME, e);
         }
@@ -39,96 +40,88 @@ public class BibliotecaRepository {
     // Crear libro
     public void crearLibro(Libro libro) throws RepositoryException {
         try {
-            String query = "INSERT INTO BIBLIOTECA "
-                    + "<libro>"
-                    + "<titulo>" + libro.getTitulo() + "</titulo>"
-                    + "<autor>" + libro.getAutor() + "</autor>"
-                    + "<anio>" + libro.getAnio() + "</anio>"
-                    + "<genero>" + libro.getGenero() + "</genero>"
-                    + "</libro>";
+            // Obtener el último id del XML
+            String queryId = QueryBuilder.getQuery();
+            String resultadoId = SESSION.execute(queryId);
+            String query = QueryBuilder.getInsertQuery(libro, resultadoId);
+            SESSION.execute("XQUERY " + query);
 
-
-            session.execute(query);
         } catch (Exception e) {
             throw new RepositoryException("Error al insertar el libro en la base de datos", e);
         }
     }
 
     // Mostrar libros
-    public List<Libro> consultarLibros() throws RepositoryException {
-        // Lista que almacenar libros
-        List<Libro> libros;
-
+    public void consultarLibros() throws RepositoryException {
         try {
             // Ejecuta una consulta XQUERY que obtiene todos los nodos de la colección
-            String query = "XQUERY for $v in collection('" + COLLECTION_NAME + "') return $v";
-            String result = session.execute(query);
+            String query = QueryBuilder.getQuerylibro();
+            String resultado = SESSION.execute(query);
 
             // Procesar el XML resultante y lo convierte en una lista de objetos Libro
-            libros = parsearLibrosXML(result);
-
-            // Mostrar cada libro
-            for (Libro libro : libros) {
-                System.out.println("ID: " + libro.getId());
-                System.out.println("Título: " + libro.getTitulo());
-                System.out.println("Autor: " + libro.getAutor());
-                System.out.println("Año: " + libro.getAnio());
-                System.out.println("Género: " + libro.getGenero());
-                System.out.println("---------------------------------");
-            }
+            List<Libro> libros = XMLParser.parsearLibrosXML(resultado);
+            QueryBuilder.getListQuery(libros);
 
         } catch (IOException e) {
             throw new RepositoryException("Error al procesar la consulta de libros", e);
-        } catch (Exception e) {
-            throw new RepositoryException("Error inesperado al consultar los libros", e);
         }
-        return libros;
     }
 
-    // Convertir XML a lista de objetos Libro
-    private List<Libro> parsearLibrosXML(String xml) throws RepositoryException {
-        // Lista donde se almacenarán los objetos Libro convertidos desde el XML
-        List<Libro> libros = new ArrayList<>();
-
+    // Mostrar libros por titulo
+    public void consultarLibrosTitulo(String buscarTitulo) throws RepositoryException {
         try {
-            // Convertir el string XML a documento
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            InputSource is = new InputSource(new StringReader(xml));
-            Document doc = builder.parse(is);
+            // Consulta XQuery para buscar libros cuyo título coincida
+            String query = QueryBuilder.getQueryByTitulo(buscarTitulo);
+            String resultado = SESSION.execute(query);
+            List<Libro> libros = XMLParser.parsearLibrosXML(resultado);
+            QueryBuilder.getListQuery(libros);
 
-            // Obtiene todos los elementos <libro> del XML
-            NodeList nodeList = doc.getElementsByTagName("libro");
-
-            // Itera sobre todos los nodos <libro> encontrados
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Node node = nodeList.item(i);
-                if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    Element element = (Element) node;
-
-                    // Extrae los valores de las etiquetas del XML
-                    int id = Integer.parseInt(getTagValue("id", element));
-                    String titulo = getTagValue("titulo", element);
-                    String autor = getTagValue("autor", element);
-                    int anio = Integer.parseInt(getTagValue("anio", element));
-                    String genero = getTagValue("genero", element);
-
-                    // Crea un objeto Libro y lo agrega a la lista
-                    libros.add(new Libro(id, titulo, autor, anio, genero));
-                }
-            }
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RepositoryException("Error al procesar el XML de los libros", e);
+        } catch (IOException e) {
+            throw new RepositoryException("Error al procesar la consulta por titulo", e);
         }
-        return libros;
     }
 
-    // Función para obtener el valor de una etiqueta por nombre
-    private String getTagValue(String tag, Element element) {
-        NodeList nodeList = element.getElementsByTagName(tag);
-        if (nodeList.getLength() > 0) {
-            return nodeList.item(0).getTextContent();
+    // Mostrar libros por Autor
+    public void consultarLibrosAutor(String buscarAutor) throws RepositoryException {
+        try {
+            // Consulta XQuery para buscar libros cuyo autor coincida
+            String query = QueryBuilder.getQueryByAutor(buscarAutor);
+            String resultado = SESSION.execute(query);
+            List<Libro> libros = XMLParser.parsearLibrosXML(resultado);
+            QueryBuilder.getListQuery(libros);
+
+        } catch (IOException e) {
+            throw new RepositoryException("Error al procesar la consulta por autor", e);
         }
-        return null;
+    }
+
+    // Mostrar libros por Genero
+    public void consultarLibrosGenero(String buscarGenero) throws RepositoryException {
+        try {
+            // Consulta XQuery para buscar libros cuyo autor coincida
+            String query = QueryBuilder.getQueryByGeneno(buscarGenero);
+            String resultado = SESSION.execute(query);
+            List<Libro> libros = XMLParser.parsearLibrosXML(resultado);
+            QueryBuilder.getListQuery(libros);
+
+        } catch (IOException e) {
+            throw new RepositoryException("Error al procesar la consulta por género", e);
+        }
+    }
+    // Filtrar libros por anio
+    public void filtrarLibrosAnio(int anio, String mayorOMenor) throws RepositoryException {
+        try {
+            String query;
+            if (mayorOMenor.equalsIgnoreCase("mayor")) {
+                query = QueryBuilder.getQueryByAnioMayor(anio);
+            } else {
+                query = QueryBuilder.getQueryByAnioMenor(anio);
+            }
+            String resultado = SESSION.execute(query);
+            List<Libro> libros = XMLParser.parsearLibrosXML(resultado);
+            QueryBuilder.getListQuery(libros);
+        } catch (IOException e) {
+            throw new RepositoryException("Error al procesar la consulta por año", e);
+        }
     }
 }
