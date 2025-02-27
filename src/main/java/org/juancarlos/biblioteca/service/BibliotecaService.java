@@ -15,6 +15,15 @@ public class BibliotecaService {
         this.repository = repository;
     }
 
+    //Crear libro con ADD file.xml
+    public void cargarYAgregarLibroXML(){
+        try{
+            repository.cargarYAgregarLibroXML();
+        } catch (Exception e) {
+            System.err.println("❌ Error al crear el ADD libro.xml: " + e.getMessage());
+        }
+    }
+
     // Crear un libro
     public void crearLibro(Scanner sc) {
         System.out.println("📖  AÑADIR LIBROS  📖");

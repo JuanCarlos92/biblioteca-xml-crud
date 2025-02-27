@@ -95,5 +95,4 @@ public class QueryBuilder {
     public static String getQueryEliminar(int id) {
         return "XQUERY delete node collection('biblioteca')/biblioteca/libro[@id = '" + id + "']";
     }
-
 }

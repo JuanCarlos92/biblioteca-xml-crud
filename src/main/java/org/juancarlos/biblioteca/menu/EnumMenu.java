@@ -1,15 +1,16 @@
 package org.juancarlos.biblioteca.menu;
 
 public enum EnumMenu {
-    CREAR_LIBRO(1, "Añadir Nuevo Libro"),
-    CONSULTAR_LIBROS(2, "Consultar Libros"),
-    CONSULTAR_LIBROS_TITULO(3, "Consultar por Título"),
-    CONSULTAR_LIBROS_AUTOR(4, "Consultar por Autor"),
-    CONSULTAR_LIBROS_GENERO(5, "Consultar por Género"),
-    FILTRAR_LIBROS_ANIO(6, "Filtrar por Año de publicación"),
-    ACTUALIZAR_LIBRO(7, "Actualizar Libro"),
-    ELIMINAR_LIBRO(8, "Eliminar Libro"),
-    SALIR(9, "Salir");
+    CREAR_ADD_LIBRO(1, "Añadir libro con Archivo.xml"),
+    CREAR_LIBRO(2, "Añadir Libro"),
+    CONSULTAR_LIBROS(3, "Consultar Libros"),
+    CONSULTAR_LIBROS_TITULO(4, "Consultar por Título"),
+    CONSULTAR_LIBROS_AUTOR(5, "Consultar por Autor"),
+    CONSULTAR_LIBROS_GENERO(6, "Consultar por Género"),
+    FILTRAR_LIBROS_ANIO(7, "Filtrar por Año"),
+    ACTUALIZAR_LIBRO(8, "Actualizar Libro"),
+    ELIMINAR_LIBRO(9, "Eliminar Libro"),
+    SALIR(10, "Salir");
 
     private final int codigo;
     private final String descripcion;

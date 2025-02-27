@@ -5,6 +5,7 @@ import org.juancarlos.biblioteca.conexion.BaseXConnection;
 import org.juancarlos.biblioteca.exception.RepositoryException;
 import org.juancarlos.biblioteca.model.Libro;
 
+import javax.swing.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
@@ -15,8 +16,10 @@ import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +38,55 @@ public class BibliotecaRepository {
         } catch (Exception e) {
             throw new RepositoryException("Error al conectar con la base de datos " + COLLECTION_NAME, e);
         }
+    }
+
+    //Crear libro con ADD file.xml
+    public void cargarYAgregarLibroXML() throws RepositoryException {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Seleccionar archivo XML");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Archivos XML", "xml"));
+
+        int resultado = fileChooser.showOpenDialog(null);
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+            File archivoSeleccionado = fileChooser.getSelectedFile();
+            System.out.println("📂 Archivo seleccionado: " + archivoSeleccionado.getAbsolutePath());
+
+            try {
+                String contenidoXML = new String(Files.readAllBytes(archivoSeleccionado.toPath()));
+                contenidoXML = "<biblioteca>" + contenidoXML + "</biblioteca>";
+
+                // Obtener el ID máximo actual
+                String resultadoId = SESSION.execute(QueryBuilder.getQuery());
+                int ultimoId = Integer.parseInt(resultadoId.trim());
+
+                // Añadir los ID a los libros antes de parsearlo
+                contenidoXML = agregarIdAContenidoXML(contenidoXML, ultimoId);
+
+                // Parsear el XML a libros
+                List<Libro> libros = XMLParser.parsearLibrosXML(contenidoXML);
+
+                // Insertar los libros con el nuevo ID
+                for (Libro libro : libros) {
+                    String query = QueryBuilder.getInsertQuery(libro, String.valueOf(ultimoId));
+                    SESSION.execute("XQUERY " + query);
+                    ultimoId++;  // Incrementar el ID para el siguiente libro
+                }
+
+                System.out.println("✅ Archivo XML añadido correctamente a la base de datos.");
+            } catch (Exception e) {
+                throw new RepositoryException("Error al leer el archivo XML", e);
+            }
+        } else {
+            System.out.println("⚠️ No se seleccionó ningún archivo.");
+        }
+    }
+
+    // Añadir el ID al contenido XML antes de parsearlo
+    private String agregarIdAContenidoXML(String contenidoXML, int ultimoId) {
+        // Reemplazar cada <libro> para agregar el atributo id
+        contenidoXML = contenidoXML.replaceAll("(<libro>)", "<libro id=\"" + ultimoId + "\">");
+        return contenidoXML;
     }
 
     // Crear libro
@@ -108,6 +160,7 @@ public class BibliotecaRepository {
             throw new RepositoryException("Error al procesar la consulta por género", e);
         }
     }
+
     // Filtrar libros por anio
     public void filtrarLibrosAnio(int anio, String mayorOMenor) throws RepositoryException {
         try {
@@ -124,6 +177,7 @@ public class BibliotecaRepository {
             throw new RepositoryException("Error al procesar la consulta por año", e);
         }
     }
+
     public List<Libro> consultarlibroParaActualizar() throws RepositoryException {
         try {
             String query = QueryBuilder.getQuerylibro();
@@ -145,11 +199,11 @@ public class BibliotecaRepository {
     }
 
     public void eliminarLibro(Libro libro) throws RepositoryException {
-    try{
-        String query = QueryBuilder.getQueryEliminar(libro.getId());
-        SESSION.execute(query);
-    } catch (IOException e) {
-        throw new RepositoryException("Error al eliminar el libro", e);
-    }
+        try {
+            String query = QueryBuilder.getQueryEliminar(libro.getId());
+            SESSION.execute(query);
+        } catch (IOException e) {
+            throw new RepositoryException("Error al eliminar el libro", e);
+        }
     }
 }

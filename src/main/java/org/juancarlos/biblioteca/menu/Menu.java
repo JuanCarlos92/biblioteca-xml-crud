@@ -27,6 +27,9 @@ public class Menu {
                 continue;
             }
             switch (opcionPrincipal) {
+                case CREAR_ADD_LIBRO:
+                    bibliotecaController.cargarYAgregarLibroXML();
+                    break;
                 case CREAR_LIBRO:
                     bibliotecaController.crearLibro();
                     break;

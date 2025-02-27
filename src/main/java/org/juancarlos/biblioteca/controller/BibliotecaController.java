@@ -17,6 +17,10 @@ public class BibliotecaController {
         this.service = new BibliotecaService(repository);
         this.sc = sc;
     }
+    // Crear libro ADD libro.xml
+    public void cargarYAgregarLibroXML(){
+        service.cargarYAgregarLibroXML();
+    }
     // Crear libro
     public void crearLibro() {
         service.crearLibro(sc);
