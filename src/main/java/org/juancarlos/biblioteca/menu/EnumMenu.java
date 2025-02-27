@@ -7,8 +7,8 @@ public enum EnumMenu {
     CONSULTAR_LIBROS_AUTOR(4, "Consultar por Autor"),
     CONSULTAR_LIBROS_GENERO(5, "Consultar por Género"),
     FILTRAR_LIBROS_ANIO(6, "Filtrar por Año de publicación"),
-    ELIMINAR_LIBRO(7, "Eliminar Libro"),
-    ACTUALIZAR_LIBRO(8, "Actualizar Libro"),
+    ACTUALIZAR_LIBRO(7, "Actualizar Libro"),
+    ELIMINAR_LIBRO(8, "Eliminar Libro"),
     SALIR(9, "Salir");
 
     private final int codigo;

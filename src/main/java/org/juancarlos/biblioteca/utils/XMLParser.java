@@ -21,33 +21,29 @@ public class XMLParser {
 
     // Convertir XML a lista de objetos Libro
     public static List<Libro> parsearLibrosXML(String xml) throws RepositoryException {
-        // Lista donde se almacenarán los objetos Libro convertidos desde el XML
+        xml = xml.replaceAll("[\n" + "\r" + "\t]", "").trim();
         List<Libro> libros = new ArrayList<>();
 
         try {
-            // Convertir el string XML a documento
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             InputSource is = new InputSource(new StringReader(xml));
             Document doc = builder.parse(is);
 
-            // Obtiene todos los elementos <libro> del XML
             NodeList nodeList = doc.getElementsByTagName("libro");
 
-            // Itera sobre todos los nodos <libro> encontrados
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element element = (Element) node;
 
-                    // Extrae los valores de las etiquetas del XML
-                    int id = Integer.parseInt(getTagValue("id", element));
+                    // Obtener el ID como atributo
+                    int id = Integer.parseInt(element.getAttribute("id"));
                     String titulo = getTagValue("titulo", element);
                     String autor = getTagValue("autor", element);
                     int anio = Integer.parseInt(getTagValue("anio", element));
                     String genero = getTagValue("genero", element);
 
-                    // Crea un objeto Libro y lo agrega a la lista
                     libros.add(new Libro(id, titulo, autor, anio, genero));
                 }
             }

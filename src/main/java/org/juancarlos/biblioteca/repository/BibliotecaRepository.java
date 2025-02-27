@@ -124,4 +124,32 @@ public class BibliotecaRepository {
             throw new RepositoryException("Error al procesar la consulta por año", e);
         }
     }
+    public List<Libro> consultarlibroParaActualizar() throws RepositoryException {
+        try {
+            String query = QueryBuilder.getQuerylibro();
+            String resultado = SESSION.execute(query);
+            return XMLParser.parsearLibrosXML(resultado);
+        } catch (IOException e) {
+            throw new RepositoryException("Error al obtener la lista de libros", e);
+        }
+    }
+
+    public void actualizarLibro(Libro libro) throws RepositoryException {
+        try {
+            String query = QueryBuilder.getQueryActualizar(libro.getId(), libro.getTitulo(), libro.getAutor(), libro.getAnio(), libro.getGenero());
+            SESSION.execute("XQUERY " + query);
+
+        } catch (IOException e) {
+            throw new RepositoryException("Error al actualizar el libro", e);
+        }
+    }
+
+    public void eliminarLibro(Libro libro) throws RepositoryException {
+    try{
+        String query = QueryBuilder.getQueryEliminar(libro.getId());
+        SESSION.execute(query);
+    } catch (IOException e) {
+        throw new RepositoryException("Error al eliminar el libro", e);
+    }
+    }
 }

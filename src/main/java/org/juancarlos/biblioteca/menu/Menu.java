@@ -45,6 +45,12 @@ public class Menu {
                 case FILTRAR_LIBROS_ANIO:
                     bibliotecaController.filtrarLibrosAnio();
                     break;
+                case ACTUALIZAR_LIBRO:
+                    bibliotecaController.actualizarLibro();
+                    break;
+                case ELIMINAR_LIBRO:
+                    bibliotecaController.eliminarLibro();
+                    break;
                 case SALIR:
                     salir = true;
                     break;

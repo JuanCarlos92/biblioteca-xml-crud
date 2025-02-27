@@ -41,4 +41,12 @@ public class BibliotecaController {
     public void filtrarLibrosAnio() {
         service.filtrarLibrosAnio(sc);
     }
+    //Actualizar libro
+    public void actualizarLibro() {
+        service.actualizarLibro(sc);
+    }
+    //Eliminar libro
+    public void eliminarLibro() {
+        service.eliminarLibro(sc);
+    }
 }

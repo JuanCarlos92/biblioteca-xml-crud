@@ -15,7 +15,6 @@ public class Libro {
         this.anio = anio;
         this.genero = genero;
     }
-
     // Getters y Setters
     public int getId() {
         return id;
@@ -57,13 +56,4 @@ public class Libro {
         this.genero = genero;
     }
 
-    // Convertir el objeto a un formato XML
-    public String toXml() {
-        return "<libro id=\"" + id + "\">" +
-                "<titulo>" + titulo + "</titulo>" +
-                "<autor>" + autor + "</autor>" +
-                "<anio>" + anio + "</anio>" +
-                "<genero>" + genero + "</genero>" +
-                "</libro>";
-    }
 }
