@@ -6,26 +6,18 @@ import org.juancarlos.biblioteca.exception.RepositoryException;
 import org.juancarlos.biblioteca.model.Libro;
 
 import javax.swing.*;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.juancarlos.biblioteca.utils.QueryBuilder;
 import org.juancarlos.biblioteca.utils.XMLParser;
-import org.w3c.dom.*;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.List;
 
 public class BibliotecaRepository {
 
-    private static final String COLLECTION_NAME = "biblioteca";
+    private static final String COLLECTION_BASE = "biblioteca";
     private final ClientSession SESSION;
 
     // Constructor
@@ -34,9 +26,9 @@ public class BibliotecaRepository {
             // Obtener la sesión de BaseX desde la clase BaseXConnection
             this.SESSION = BaseXConnection.obtenerConexion();
             // Abrir la colección
-            SESSION.execute("OPEN " + COLLECTION_NAME);
+            SESSION.execute("OPEN " + COLLECTION_BASE);
         } catch (Exception e) {
-            throw new RepositoryException("Error al conectar con la base de datos " + COLLECTION_NAME, e);
+            throw new RepositoryException("Error al conectar con la base de datos " + COLLECTION_BASE, e);
         }
     }
 

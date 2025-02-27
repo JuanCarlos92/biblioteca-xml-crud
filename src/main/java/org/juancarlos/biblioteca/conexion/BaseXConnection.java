@@ -9,8 +9,7 @@ public class BaseXConnection {
     public static ClientSession obtenerConexion() throws RepositoryException {
         try {
             // Establecer conexión con BaseX, debes ajustar los parámetros si es necesario
-            ClientSession session = new ClientSession("localhost", 1984, "user", "user");
-            return session;
+            return new ClientSession("localhost", 1984, "user", "user");
         } catch (Exception e) {
             throw new RepositoryException("Error al conectar con la base de datos BaseX", e);
         }
