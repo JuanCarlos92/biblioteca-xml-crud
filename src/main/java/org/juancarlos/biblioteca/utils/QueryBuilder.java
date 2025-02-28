@@ -5,20 +5,20 @@ import org.juancarlos.biblioteca.model.Libro;
 import java.util.List;
 
 public class QueryBuilder {
-    public static String getInsertQuery(Libro libro, String resultadoId) {
+    public static String getInsertLibro(Libro libro, String resultadoId) {
         int ultimoId = (resultadoId.isEmpty()) ? 0 : Integer.parseInt(resultadoId.trim());
         int nuevoId = ultimoId + 1;
 
-        return "insert node " +
+        return "XQUERY insert node " +
                 " <libro id='" + nuevoId + "'>" +
                 " <titulo>" + libro.getTitulo() + "</titulo>" +
                 " <autor>" + libro.getAutor() + "</autor>" +
                 " <anio>" + libro.getAnio() + "</anio>" +
-                " <genero>" + libro.getGenero() + "</genero>" +
-                "</libro> into /biblioteca";
+                " </libro> into //biblioteca/genero[@tipo='" + libro.getGenero() + "']";
+
     }
 
-    public static void getListQuery(List<Libro> libros) {
+    public static void getListLibros(List<Libro> libros) {
         for (Libro libro : libros) {
             System.out.println("ID: " + libro.getId());
             System.out.println("Título: " + libro.getTitulo());
@@ -29,70 +29,78 @@ public class QueryBuilder {
         }
     }
 
-    public static String getQuery() {
-        return "XQUERY max(for $v in collection('biblioteca')/biblioteca/libro/@id return xs:int($v))";
+    public static String getListColeccion() {
+        return "XQUERY for $g in //biblioteca/genero return data($g/@tipo)";
     }
 
-    public static String getQuerylibro() {
+    public static String getVerificarGenero(String tipoGenero) {
+        return "XQUERY count(//genero[@tipo='" + tipoGenero + "'])";
+    }
+
+    public static String getInsertColeccion(String tipoGenero) {
+        return "XQUERY insert node <genero tipo='" + tipoGenero + "'/> into //biblioteca";
+    }
+
+    public static String getDeleteColeccion(String tipoGenero) {
+        return "XQUERY delete node collection('biblioteca')/biblioteca/genero[@tipo = '" + tipoGenero + "']";
+    }
+
+    public static String getIDLibro() {
+        return "XQUERY max(for $v in collection('biblioteca')/biblioteca/genero/libro/@id return xs:int($v))";
+    }
+
+    public static String getAllBiblioteca() {
         return "XQUERY for $v in collection('biblioteca') return $v";
     }
 
-    public static String getQueryByTitulo(String titulo) {
+    public static String getQueryTitulo(String titulo) {
         return "XQUERY " +
                 "<biblioteca>{ " +
-                "for $v in collection('biblioteca')/biblioteca/libro " +
+                "for $v in collection('biblioteca')//genero/libro " +
                 "where $v/titulo = '" + titulo + "' " +
-                "return $v " +
+                "return <genero tipo='{$v/../@tipo}'>{$v}</genero> " +
                 "}</biblioteca>";
     }
 
-    public static String getQueryByAutor(String autor) {
+    public static String getQueryAutor(String autor) {
         return "XQUERY " +
                 "<biblioteca>{ " +
-                "for $v in collection('biblioteca')/biblioteca/libro " +
+                "for $v in collection('biblioteca')//genero/libro " +
                 "where $v/autor = '" + autor + "' " +
-                "return $v " +
+                "return <genero tipo='{$v/../@tipo}'>{$v}</genero> " +
                 "}</biblioteca>";
     }
 
-    public static String getQueryByGeneno(String genero) {
+    public static String getQueryAnioMayor(int anio) {
         return "XQUERY " +
                 "<biblioteca>{ " +
-                "for $v in collection('biblioteca')/biblioteca/libro " +
-                "where $v/genero = '" + genero + "' " +
-                "return $v " +
-                "}</biblioteca>";
-    }
-
-    public static String getQueryByAnioMayor(int anio) {
-        return "XQUERY " +
-                "<biblioteca>{ " +
-                "for $v in collection('biblioteca')//libro " +
+                "for $v in collection('biblioteca')//genero/libro " +
                 "where $v/anio > " + anio +
-                " return $v " +
+                " return <genero tipo='{$v/../@tipo}'>{$v}</genero> " +
                 "}</biblioteca>";
     }
 
-    public static String getQueryByAnioMenor(int anio) {
+    public static String getQueryAnioMenor(int anio) {
         return "XQUERY " +
                 "<biblioteca>{ " +
-                "for $v in collection('biblioteca')//libro " +
+                "for $v in collection('biblioteca')//genero/libro " +
                 "where $v/anio < " + anio +
-                " return $v " +
+                " return <genero tipo='{$v/../@tipo}'>{$v}</genero> " +
                 "}</biblioteca>";
     }
 
-    public static String getQueryActualizar(int id, String titulo, String autor, int anio, String genero) {
-        return "for $libro in collection('biblioteca')/biblioteca/libro " +
+    public static String getActualizarLibro(int id, String titulo, String autor, int anio) {
+        return "for $libro in collection('biblioteca')//libro " +
                 "where $libro/@id = '" + id + "' " +
                 "return (" +
                 "  replace value of node $libro/titulo with '" + titulo + "', " +
                 "  replace value of node $libro/autor with '" + autor + "', " +
-                "  replace value of node $libro/anio with " + anio + ", " +
-                "  replace value of node $libro/genero with '" + genero + "'" +
+                "  replace value of node $libro/anio with " + anio + " " +
                 ")";
     }
-    public static String getQueryEliminar(int id) {
-        return "XQUERY delete node collection('biblioteca')/biblioteca/libro[@id = '" + id + "']";
+
+    public static String getEliminarLibro(int id) {
+        return "XQUERY delete node collection('biblioteca')//libro[@id = '" + id + "']";
     }
+
 }

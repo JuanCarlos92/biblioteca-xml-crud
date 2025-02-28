@@ -27,6 +27,15 @@ public class Menu {
                 continue;
             }
             switch (opcionPrincipal) {
+                case CREAR_COLECCION:
+                    bibliotecaController.crearColeccion();
+                    break;
+                case ELIMINAR_COLECCION:
+                    bibliotecaController.eliminarColeccion();
+                    break;
+                case CONSULTAR_COLECCIONES:
+                    bibliotecaController.consultarColecciones();
+                    break;
                 case CREAR_ADD_LIBRO:
                     bibliotecaController.cargarYAgregarLibroXML();
                     break;
@@ -41,9 +50,6 @@ public class Menu {
                     break;
                 case CONSULTAR_LIBROS_AUTOR:
                     bibliotecaController.consultarLibrosAutor();
-                    break;
-                case CONSULTAR_LIBROS_GENERO:
-                    bibliotecaController.consultarLibrosGenero();
                     break;
                 case FILTRAR_LIBROS_ANIO:
                     bibliotecaController.filtrarLibrosAnio();
@@ -72,7 +78,7 @@ public class Menu {
     // Lee un valor entero introducido por el usuario mediante Scanner.
     private int leerEntero(Scanner sc) {
         while (!sc.hasNextInt()) {
-            System.out.println("⚠️ Ingrese un número válido:");
+            System.out.print("⚠️ Ingrese un número válido:");
             sc.next();
         }
         int valor = sc.nextInt();

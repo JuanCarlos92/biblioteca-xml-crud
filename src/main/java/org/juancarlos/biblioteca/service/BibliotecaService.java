@@ -15,10 +15,52 @@ public class BibliotecaService {
         this.repository = repository;
     }
 
-    //Crear libro con ADD file.xml
-    public void cargarYAgregarLibroXML(){
+    // Crear nueva coleccion
+    public void crearColeccion(Scanner sc) {
+        System.out.println("📖  CREAR COLECCION  📖");
+
+        System.out.print("Introduzca el tipo de genero para crear la coleccion: ");
+        String tipoGenero = sc.nextLine();
+
         try{
-            repository.cargarYAgregarLibroXML();
+            repository.crearColeccion(tipoGenero);
+        }catch (Exception e){
+            System.err.println("❌ Error al crear la coleccion: " + e.getMessage());
+        }
+    }
+
+    // Eliminar coleccion
+    public void eliminarColeccion(Scanner sc) {
+        System.out.println("📖  ELIMINAR COLECCION  📖");
+
+        System.out.println("Introduzca el tipo de genero para eliminar la coleccion: ");
+        String tipoGenero = sc.nextLine();
+
+        try{
+            repository.eliminarColeccion(tipoGenero);
+        }catch (Exception e){
+            System.err.println("❌ Error al eliminar la coleccion: " + e.getMessage());
+        }
+    }
+
+    // Consultar colecciones
+    public void consultarColecciones() {
+        try {
+            repository.consultarColecciones();
+
+        } catch (RepositoryException e) {
+            System.err.println("❌ Error al consultar las colecciones: " + e.getMessage()); // Manejar la excepción
+        }
+    }
+
+    // Crear libro con fichero file.xml
+    public void cargarYAgregarLibroXML(Scanner sc) {
+        System.out.println("📖  AÑADIR LIBRO desde un .XML 📖");
+        System.out.print("Introduzca el tipo de genero del libro: ");
+        String tipoGenero = sc.nextLine();
+
+        try{
+            repository.cargarYAgregarLibroXML(tipoGenero);
         } catch (Exception e) {
             System.err.println("❌ Error al crear el ADD libro.xml: " + e.getMessage());
         }
@@ -26,7 +68,7 @@ public class BibliotecaService {
 
     // Crear un libro
     public void crearLibro(Scanner sc) {
-        System.out.println("📖  AÑADIR LIBROS  📖");
+        System.out.println("📖  AÑADIR LIBRO  📖");
 
         System.out.print("Introduce el título del libro: ");
         String titulo = sc.nextLine();
@@ -38,13 +80,12 @@ public class BibliotecaService {
         anio = getAnio(sc, anio);
 
         System.out.print("Introduce el género del libro: ");
-        String genero = sc.nextLine();
+        String tipoGenero = sc.nextLine();
 
-        Libro libro = new Libro(0, titulo, autor, anio, genero);
+        Libro libro = new Libro(0, titulo, autor, anio, tipoGenero);
 
         try {
-            repository.crearLibro(libro);
-            System.out.println("✅ ✅ Libro creado con éxito! ✅ ✅ ");
+            repository.crearLibro(libro, tipoGenero);
         } catch (Exception e) {
             System.err.println("❌ Error al crear el libro: " + e.getMessage());
         }
@@ -89,20 +130,6 @@ public class BibliotecaService {
         }
     }
 
-    // Consultar libros por genero
-    public void consultarLibrosGenero(Scanner sc) {
-        try {
-            System.out.print("Introduce el género del libro a buscar: ");
-            String buscarGenero = sc.nextLine();
-
-            System.out.println("📖  LISTA DE LIBROS POR GENERO 📖");
-            repository.consultarLibrosGenero(buscarGenero);
-
-        } catch (RepositoryException e) {
-            System.err.println("❌ Error al consultar los libros: " + e.getMessage()); // Manejar la excepción
-        }
-    }
-
     //filtrar libros por anio
     public void filtrarLibrosAnio(Scanner sc) {
         int anio = 0;
@@ -123,7 +150,7 @@ public class BibliotecaService {
     public void actualizarLibro(Scanner sc) {
         try {
             // Obtener y mostrar los libros disponibles
-            List<Libro> libros = repository.consultarlibroParaActualizar();
+            List<Libro> libros = repository.consultarNombreLibro();
             if (libros.isEmpty()) {
                 System.out.println("⚠️ No hay libros disponibles.");
                 return;
@@ -189,7 +216,7 @@ public class BibliotecaService {
     public void eliminarLibro(Scanner sc) {
         try {
             // Obtener y mostrar los libros disponibles
-            List<Libro> libros = repository.consultarlibroParaActualizar();
+            List<Libro> libros = repository.consultarNombreLibro();
             if (libros.isEmpty()) {
                 System.out.println("⚠️ No hay libros disponibles.");
                 return;

@@ -4,7 +4,6 @@ import org.juancarlos.biblioteca.exception.RepositoryException;
 import org.juancarlos.biblioteca.model.Libro;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -30,21 +29,23 @@ public class XMLParser {
             InputSource is = new InputSource(new StringReader(xml));
             Document doc = builder.parse(is);
 
-            NodeList nodeList = doc.getElementsByTagName("libro");
+            NodeList generos = doc.getElementsByTagName("genero");
+            for (int i = 0; i < generos.getLength(); i++) {
+                Element generoElement = (Element) generos.item(i);
+                String tipoGenero = generoElement.getAttribute("tipo");
 
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Node node = nodeList.item(i);
-                if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    Element element = (Element) node;
+                // Obtener solo los libros dentro del género actual
+                NodeList librosNodos = generoElement.getElementsByTagName("libro");
+                for (int j = 0; j < librosNodos.getLength(); j++) {
+                    Element libroElement = (Element) librosNodos.item(j);
 
-                    // Obtener el ID como atributo
-                    int id = Integer.parseInt(element.getAttribute("id"));
-                    String titulo = getTagValue("titulo", element);
-                    String autor = getTagValue("autor", element);
-                    int anio = Integer.parseInt(getTagValue("anio", element));
-                    String genero = getTagValue("genero", element);
+                    int id = Integer.parseInt(libroElement.getAttribute("id"));
+                    String titulo = getTagValue("titulo", libroElement);
+                    String autor = getTagValue("autor", libroElement);
+                    int anio = Integer.parseInt(getTagValue("anio", libroElement));
 
-                    libros.add(new Libro(id, titulo, autor, anio, genero));
+                    // Agregar libro al listado con el género correspondiente
+                    libros.add(new Libro(id, titulo, autor, anio, tipoGenero));
                 }
             }
         } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -52,6 +53,7 @@ public class XMLParser {
         }
         return libros;
     }
+
 
     // Función para obtener el valor de una etiqueta por nombre
     private static String getTagValue(String tag, Element element) {

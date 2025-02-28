@@ -13,7 +13,11 @@ import org.juancarlos.biblioteca.utils.XMLParser;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static org.juancarlos.biblioteca.ui.FIleChooser.getJFileChooser;
 
 public class BibliotecaRepository {
 
@@ -32,42 +36,109 @@ public class BibliotecaRepository {
         }
     }
 
-    //Crear libro con ADD file.xml
-    public void cargarYAgregarLibroXML() throws RepositoryException {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Seleccionar archivo XML");
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Archivos XML", "xml"));
+    // Crear coleccion
+    public void crearColeccion(String tipoGenero) throws RepositoryException {
+        try {
+            String queryVerificar = QueryBuilder.getVerificarGenero(tipoGenero);
+            String resultado = SESSION.execute(queryVerificar);
 
-        int resultado = fileChooser.showOpenDialog(null);
-        if (resultado == JFileChooser.APPROVE_OPTION) {
+            if (Integer.parseInt(resultado.trim()) > 0) {
+                System.out.println("La colección ya existe");
+                return;
+            }
+            String queryInsertColeccion = QueryBuilder.getInsertColeccion(tipoGenero);
+            SESSION.execute(queryInsertColeccion);
+            System.out.println("✅ ✅ Colección creada con éxito! ✅ ✅ ");
+        } catch (Exception e) {
+            throw new RepositoryException("Error al crear la nueva coleccion", e);
+        }
+    }
+
+    // Eliminar coleccion
+    public void eliminarColeccion(String tipoGenero) throws RepositoryException {
+        try {
+            String queryVerificar = QueryBuilder.getVerificarGenero(tipoGenero);
+            String resultado = SESSION.execute(queryVerificar);
+
+            if (Integer.parseInt(resultado.trim()) == 0) {
+                System.out.println("Esta colección no existe");
+                return;
+            }
+            String queryDeleteColeccion = QueryBuilder.getDeleteColeccion(tipoGenero);
+            SESSION.execute(queryDeleteColeccion);
+            System.out.println("✅ ✅ Colección eliminada con éxito! ✅ ✅ ");
+        } catch (Exception e) {
+            throw new RepositoryException("Error al eliminar la coleccion", e);
+        }
+    }
+
+    public void consultarColecciones() throws RepositoryException {
+        try {
+            String query = QueryBuilder.getListColeccion();
+            String resultado = SESSION.execute(query);
+
+            // Verificar si el resultado no está vacío
+            if (resultado != null && !resultado.trim().isEmpty()) {
+                // Convertir el resultado en una lista separando por saltos de línea o espacios
+                List<String> generos = new ArrayList<>(Arrays.asList(resultado.split("\n")));
+
+                System.out.println("📖  LISTA DE COLECCIONES  📖");
+                // Mostrar los géneros en consola numerados
+                int index = 1;
+                for (String genero : generos) {
+                    System.out.println(index + ". " + genero.trim());
+                    index++;
+                }
+            } else {
+                System.out.println("No se encontraron géneros en la biblioteca.");
+            }
+
+        } catch (Exception e) {
+            throw new RepositoryException("Error al consultar las colecciones", e);
+        }
+
+    }
+
+    // Crear libro con fichero file.xml
+    public void cargarYAgregarLibroXML(String tipoGenero) throws RepositoryException, IOException {
+        String queryVerificar = QueryBuilder.getVerificarGenero(tipoGenero);
+        String resultado = SESSION.execute(queryVerificar);
+
+        if (Integer.parseInt(resultado.trim()) == 0) {
+            System.out.println("Esta colección no existe, primero crea la coleccion con ese género");
+            return;
+        }
+
+        // Si el género existe o se crea, entonces proceder a mostrar el JFileChooser
+        JFileChooser fileChooser = getJFileChooser();
+
+        int resultadoFile = fileChooser.showOpenDialog(null);
+        if (resultadoFile == JFileChooser.APPROVE_OPTION) {
             File archivoSeleccionado = fileChooser.getSelectedFile();
             System.out.println("📂 Archivo seleccionado: " + archivoSeleccionado.getAbsolutePath());
 
             try {
+                // Leer contenido del archivo seleccionado
                 String contenidoXML = new String(Files.readAllBytes(archivoSeleccionado.toPath()));
-                contenidoXML = "<biblioteca>" + contenidoXML + "</biblioteca>";
+
+                // Asegurar que el XML está dentro de <biblioteca>
+                // String query = "<biblioteca><genero tipo='"+ tipoGenero +"'>" + contenidoXML + "</genero></biblioteca>";
 
                 // Obtener el ID máximo actual
-                String resultadoId = SESSION.execute(QueryBuilder.getQuery());
-                int ultimoId = Integer.parseInt(resultadoId.trim());
+                String resultadoId = SESSION.execute(QueryBuilder.getIDLibro());
+                int ultimoId = resultadoId.trim().isEmpty() ? 0 : Integer.parseInt(resultadoId.trim());
+                ultimoId ++;
 
-                // Añadir los ID a los libros antes de parsearlo
+                // Asignar ID a cada libro dentro del XML
                 contenidoXML = agregarIdAContenidoXML(contenidoXML, ultimoId);
 
-                // Parsear el XML a libros
-                List<Libro> libros = XMLParser.parsearLibrosXML(contenidoXML);
-
-                // Insertar los libros con el nuevo ID
-                for (Libro libro : libros) {
-                    String query = QueryBuilder.getInsertQuery(libro, String.valueOf(ultimoId));
-                    SESSION.execute("XQUERY " + query);
-                    ultimoId++;  // Incrementar el ID para el siguiente libro
-                }
+                SESSION.execute("XQUERY insert node " + contenidoXML + "into //biblioteca/genero[@tipo='" + tipoGenero + "']");
 
                 System.out.println("✅ Archivo XML añadido correctamente a la base de datos.");
+
             } catch (Exception e) {
                 throw new RepositoryException("Error al leer el archivo XML", e);
+
             }
         } else {
             System.out.println("⚠️ No se seleccionó ningún archivo.");
@@ -76,19 +147,28 @@ public class BibliotecaRepository {
 
     // Añadir el ID al contenido XML antes de parsearlo
     private String agregarIdAContenidoXML(String contenidoXML, int ultimoId) {
-        // Reemplazar cada <libro> para agregar el atributo id
         contenidoXML = contenidoXML.replaceAll("(<libro>)", "<libro id=\"" + ultimoId + "\">");
+
         return contenidoXML;
     }
 
     // Crear libro
-    public void crearLibro(Libro libro) throws RepositoryException {
+    public void crearLibro(Libro libro, String tipoGenero) throws RepositoryException {
         try {
+            String queryVerificar = QueryBuilder.getVerificarGenero(tipoGenero);
+            String resultado = SESSION.execute(queryVerificar);
+
+            if (Integer.parseInt(resultado.trim()) == 0) {
+                System.out.println("Esta colección no existe, primero crea la coleccion con ese género");
+                return;
+            }
             // Obtener el último id del XML
-            String queryId = QueryBuilder.getQuery();
+            String queryId = QueryBuilder.getIDLibro();
             String resultadoId = SESSION.execute(queryId);
-            String query = QueryBuilder.getInsertQuery(libro, resultadoId);
-            SESSION.execute("XQUERY " + query);
+
+            String query = QueryBuilder.getInsertLibro(libro, resultadoId);
+            SESSION.execute(query);
+            System.out.println("✅ ✅ Libro creado con éxito! ✅ ✅ ");
 
         } catch (Exception e) {
             throw new RepositoryException("Error al insertar el libro en la base de datos", e);
@@ -98,13 +178,12 @@ public class BibliotecaRepository {
     // Mostrar libros
     public void consultarLibros() throws RepositoryException {
         try {
-            // Ejecuta una consulta XQUERY que obtiene todos los nodos de la colección
-            String query = QueryBuilder.getQuerylibro();
+            String query = QueryBuilder.getAllBiblioteca();
             String resultado = SESSION.execute(query);
 
             // Procesar el XML resultante y lo convierte en una lista de objetos Libro
             List<Libro> libros = XMLParser.parsearLibrosXML(resultado);
-            QueryBuilder.getListQuery(libros);
+            QueryBuilder.getListLibros(libros);
 
         } catch (IOException e) {
             throw new RepositoryException("Error al procesar la consulta de libros", e);
@@ -114,11 +193,10 @@ public class BibliotecaRepository {
     // Mostrar libros por titulo
     public void consultarLibrosTitulo(String buscarTitulo) throws RepositoryException {
         try {
-            // Consulta XQuery para buscar libros cuyo título coincida
-            String query = QueryBuilder.getQueryByTitulo(buscarTitulo);
+            String query = QueryBuilder.getQueryTitulo(buscarTitulo);
             String resultado = SESSION.execute(query);
             List<Libro> libros = XMLParser.parsearLibrosXML(resultado);
-            QueryBuilder.getListQuery(libros);
+            QueryBuilder.getListLibros(libros);
 
         } catch (IOException e) {
             throw new RepositoryException("Error al procesar la consulta por titulo", e);
@@ -128,28 +206,13 @@ public class BibliotecaRepository {
     // Mostrar libros por Autor
     public void consultarLibrosAutor(String buscarAutor) throws RepositoryException {
         try {
-            // Consulta XQuery para buscar libros cuyo autor coincida
-            String query = QueryBuilder.getQueryByAutor(buscarAutor);
+            String query = QueryBuilder.getQueryAutor(buscarAutor);
             String resultado = SESSION.execute(query);
             List<Libro> libros = XMLParser.parsearLibrosXML(resultado);
-            QueryBuilder.getListQuery(libros);
+            QueryBuilder.getListLibros(libros);
 
         } catch (IOException e) {
             throw new RepositoryException("Error al procesar la consulta por autor", e);
-        }
-    }
-
-    // Mostrar libros por Genero
-    public void consultarLibrosGenero(String buscarGenero) throws RepositoryException {
-        try {
-            // Consulta XQuery para buscar libros cuyo autor coincida
-            String query = QueryBuilder.getQueryByGeneno(buscarGenero);
-            String resultado = SESSION.execute(query);
-            List<Libro> libros = XMLParser.parsearLibrosXML(resultado);
-            QueryBuilder.getListQuery(libros);
-
-        } catch (IOException e) {
-            throw new RepositoryException("Error al procesar la consulta por género", e);
         }
     }
 
@@ -158,21 +221,21 @@ public class BibliotecaRepository {
         try {
             String query;
             if (mayorOMenor.equalsIgnoreCase("mayor")) {
-                query = QueryBuilder.getQueryByAnioMayor(anio);
+                query = QueryBuilder.getQueryAnioMayor(anio);
             } else {
-                query = QueryBuilder.getQueryByAnioMenor(anio);
+                query = QueryBuilder.getQueryAnioMenor(anio);
             }
             String resultado = SESSION.execute(query);
             List<Libro> libros = XMLParser.parsearLibrosXML(resultado);
-            QueryBuilder.getListQuery(libros);
+            QueryBuilder.getListLibros(libros);
         } catch (IOException e) {
             throw new RepositoryException("Error al procesar la consulta por año", e);
         }
     }
 
-    public List<Libro> consultarlibroParaActualizar() throws RepositoryException {
+    public List<Libro> consultarNombreLibro() throws RepositoryException {
         try {
-            String query = QueryBuilder.getQuerylibro();
+            String query = QueryBuilder.getAllBiblioteca();
             String resultado = SESSION.execute(query);
             return XMLParser.parsearLibrosXML(resultado);
         } catch (IOException e) {
@@ -182,7 +245,7 @@ public class BibliotecaRepository {
 
     public void actualizarLibro(Libro libro) throws RepositoryException {
         try {
-            String query = QueryBuilder.getQueryActualizar(libro.getId(), libro.getTitulo(), libro.getAutor(), libro.getAnio(), libro.getGenero());
+            String query = QueryBuilder.getActualizarLibro(libro.getId(), libro.getTitulo(), libro.getAutor(), libro.getAnio());
             SESSION.execute("XQUERY " + query);
 
         } catch (IOException e) {
@@ -192,10 +255,12 @@ public class BibliotecaRepository {
 
     public void eliminarLibro(Libro libro) throws RepositoryException {
         try {
-            String query = QueryBuilder.getQueryEliminar(libro.getId());
+            String query = QueryBuilder.getEliminarLibro(libro.getId());
             SESSION.execute(query);
         } catch (IOException e) {
             throw new RepositoryException("Error al eliminar el libro", e);
         }
     }
 }
+
+

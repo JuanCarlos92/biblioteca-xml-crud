@@ -17,9 +17,21 @@ public class BibliotecaController {
         this.service = new BibliotecaService(repository);
         this.sc = sc;
     }
-    // Crear libro ADD libro.xml
+    // Crear coleccion
+    public void crearColeccion(){
+        service.crearColeccion(sc);
+    }
+    // ELiminar coleccion
+    public void eliminarColeccion(){
+        service.eliminarColeccion(sc);
+    }
+    // Consultar colecciones
+    public void consultarColecciones(){
+        service.consultarColecciones();
+    }
+    // Crear libro con fichero libro.xml
     public void cargarYAgregarLibroXML(){
-        service.cargarYAgregarLibroXML();
+        service.cargarYAgregarLibroXML(sc);
     }
     // Crear libro
     public void crearLibro() {
@@ -36,10 +48,6 @@ public class BibliotecaController {
     // Consultar libros Autor
     public void consultarLibrosAutor() {
         service.consultarLibrosAutor(sc);
-    }
-    // Consultar libros Genero
-    public void consultarLibrosGenero() {
-        service.consultarLibrosGenero(sc);
     }
     //filtrar libros por anio
     public void filtrarLibrosAnio() {

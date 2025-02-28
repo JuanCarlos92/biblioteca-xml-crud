@@ -15,6 +15,13 @@ public class Libro {
         this.anio = anio;
         this.genero = genero;
     }
+
+    // Constructor
+    public Libro(int id, String genero) {
+        this.id = id;
+        this.genero = genero;
+    }
+
     // Getters y Setters
     public int getId() {
         return id;
