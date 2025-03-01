@@ -111,21 +111,20 @@ Si deseas contribuir al proyecto, sigue los siguientes pasos:
    ```bash
      git checkout -b mi-rama
      ```
-4. Realiza tus cambios y haz commit de tus modificaciones:
+3. Realiza tus cambios y haz commit de tus modificaciones:
    
    ```bash
      git commit -am 'Añadir nueva funcionalidad'
      ```
-6. Sube tus cambios a tu repositorio remoto:
+4. Sube tus cambios a tu repositorio remoto:
    
    ```bash
      git push origin mi-rama
      ```
+5. Abre un Pull Request para que tus cambios sean revisados e integrados al repositorio principal.
+
 ## Presentacion
 
    ```url
       https://gamma.app/docs/Sistema-de-Gestion-XML-Aplicacion-Java-con-BaseX-fyr59xej412mq35
-      ```
-
-
-8. Abre un Pull Request para que tus cambios sean revisados e integrados al repositorio principal.
+   ```
