@@ -1,5 +1,9 @@
 package org.juancarlos.biblioteca.menu;
 
+/**
+ * Enumeración que representa las opciones del menú de la biblioteca.
+ * Cada opción tiene un código asociado y una descripción.
+ */
 public enum EnumMenu {
     CREAR_COLECCION(1, "Añadir Nueva Colección"),
     ELIMINAR_COLECCION(2, "Eliminar Colección"),
@@ -17,7 +21,12 @@ public enum EnumMenu {
     private final int codigo;
     private final String descripcion;
 
-    //Constructor de la enumeración. Asigna el código y descripción a la opción.
+    /**
+     * Constructor de la enumeración.
+     *
+     * @param codigo      Código numérico de la opción.
+     * @param descripcion Descripción textual de la opción.
+     */
     EnumMenu(int codigo, String descripcion) {
         this.codigo = codigo;
         this.descripcion = descripcion;
@@ -34,6 +43,9 @@ public enum EnumMenu {
     /**
      * Retorna la opción del menú biblioteca correspondiente al código proporcionado.
      * Si no existe ninguna coincidencia, retorna null.
+     *
+     * @param codigo Código de la opción buscada.
+     * @return La opción del menú correspondiente o null si no se encuentra.
      */
     public static EnumMenu obtenerPorCodigo(int codigo) {
         for (EnumMenu opcion : values()) {
@@ -45,7 +57,7 @@ public enum EnumMenu {
     }
 
     /**
-     * Muestra por consola todas las opciones del menú biblioteca con su código y descripción.
+     * Muestra por consola todas las opciones del menú de la biblioteca con su código y descripción.
      */
     public static void mostrarOpcionesMenu() {
         System.out.println("📔 --- MENÚ DE BIBLIOTECA --- 📔");

@@ -1,5 +1,8 @@
 package org.juancarlos.biblioteca.model;
 
+/**
+ * Representa un libro en la biblioteca con sus atributos principales.
+ */
 public class Libro {
     private int id;
     private String titulo;
@@ -7,7 +10,15 @@ public class Libro {
     private int anio;
     private String genero;
 
-    // Constructor
+    /**
+     * Constructor con todos los atributos del libro.
+     *
+     * @param id     Identificador único del libro.
+     * @param titulo Título del libro.
+     * @param autor  Autor del libro.
+     * @param anio   Año de publicación del libro.
+     * @param genero Género literario del libro.
+     */
     public Libro(int id, String titulo, String autor, int anio, String genero) {
         this.id = id;
         this.titulo = titulo;
@@ -16,13 +27,20 @@ public class Libro {
         this.genero = genero;
     }
 
-    // Constructor
+    /**
+     * Constructor con solo el ID y el género del libro.
+     *
+     * @param id     Identificador único del libro.
+     * @param genero Género literario del libro.
+     */
     public Libro(int id, String genero) {
         this.id = id;
         this.genero = genero;
     }
 
-    // Getters y Setters
+    /**
+     * Getters y setters
+     */
     public int getId() {
         return id;
     }

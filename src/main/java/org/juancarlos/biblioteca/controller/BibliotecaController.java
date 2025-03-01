@@ -1,63 +1,102 @@
 package org.juancarlos.biblioteca.controller;
 
-import org.juancarlos.biblioteca.model.Libro;
 import org.juancarlos.biblioteca.repository.BibliotecaRepository;
 import org.juancarlos.biblioteca.service.BibliotecaService;
 
-import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Controlador de la biblioteca que gestiona la interacción entre el usuario y el servicio de biblioteca.
+ */
 public class BibliotecaController {
 
     private BibliotecaService service;
     private Scanner sc;
 
-    // Constructor que inicializa el servicio y el Scanner
+    /**
+     * Constructor que inicializa el servicio de biblioteca y el Scanner.
+     *
+     * @param sc         Scanner para la entrada de datos del usuario.
+     * @param repository Repositorio de la biblioteca que maneja la persistencia de datos.
+     */
     public BibliotecaController(Scanner sc, BibliotecaRepository repository) {
         this.service = new BibliotecaService(repository);
         this.sc = sc;
     }
-    // Crear coleccion
-    public void crearColeccion(){
+
+    /**
+     * Crea una nueva colección en la biblioteca.
+     */
+    public void crearColeccion() {
         service.crearColeccion(sc);
     }
-    // ELiminar coleccion
-    public void eliminarColeccion(){
+
+    /**
+     * Elimina una colección existente en la biblioteca.
+     */
+    public void eliminarColeccion() {
         service.eliminarColeccion(sc);
     }
-    // Consultar colecciones
-    public void consultarColecciones(){
+
+    /**
+     * Consulta y muestra todas las colecciones disponibles en la biblioteca.
+     */
+    public void consultarColecciones() {
         service.consultarColecciones();
     }
-    // Crear libro con fichero libro.xml
-    public void cargarYAgregarLibroXML(){
+
+    /**
+     * Carga un archivo XML y agrega un libro a la biblioteca.
+     */
+    public void cargarYAgregarLibroXML() {
         service.cargarYAgregarLibroXML(sc);
     }
-    // Crear libro
+
+    /**
+     * Crea un nuevo libro en la biblioteca.
+     */
     public void crearLibro() {
         service.crearLibro(sc);
     }
-    // Consultar libros
+
+    /**
+     * Consulta y muestra todos los libros disponibles en la biblioteca.
+     */
     public void consultarLibros() {
         service.consultarLibros();
     }
-    // Consultar libros titulo
+
+    /**
+     * Consulta libros por su título.
+     */
     public void consultarLibrosTitulo() {
         service.consultarLibrosTitulo(sc);
     }
-    // Consultar libros Autor
+
+    /**
+     * Consulta libros por su autor.
+     */
     public void consultarLibrosAutor() {
         service.consultarLibrosAutor(sc);
     }
-    //filtrar libros por anio
+
+    /**
+     * Filtra y muestra libros según el año de publicación.
+     */
     public void filtrarLibrosAnio() {
         service.filtrarLibrosAnio(sc);
     }
-    //Actualizar libro
+
+    /**
+     * Actualiza la información de un libro existente en la biblioteca.
+     */
     public void actualizarLibro() {
         service.actualizarLibro(sc);
     }
-    //Eliminar libro
+
+    /**
+     * Elimina un libro de la biblioteca.
+     */
     public void eliminarLibro() {
         service.eliminarLibro(sc);
     }
